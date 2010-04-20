@@ -1,0 +1,18 @@
+* text=auto !eol
+/AssemblyInfo.cs -text
+/Global.cs -text
+/ODBCBrowse.ExportProgress.resources -text
+/ODBCBrowse.Properties.Resources.resources -text
+/ODBCBrowse.csproj -text
+/ODBCBrowse.formMain.resources -text
+/ODBCBrowse.sln -text
+/ODBCBrowse.suo -text
+ODBCBrowse/DataSourceType.cs -text
+ODBCBrowse/ExportProgress.cs -text
+ODBCBrowse/OdbcConnectResult.cs -text
+ODBCBrowse/OdbcConnectionManager.cs -text
+ODBCBrowse/OdbcDataSourceManager.cs -text
+ODBCBrowse/Program.cs -text
+ODBCBrowse/Properties/Resources.cs -text
+ODBCBrowse/Properties/Settings.cs -text
+ODBCBrowse/formMain.cs -text
