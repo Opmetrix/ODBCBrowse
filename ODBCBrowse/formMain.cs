@@ -26,6 +26,9 @@
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem exportToCSVToolStripMenuItem;
         private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem editToolStripMenuItem;
+        private ToolStripMenuItem selectAllToolStripMenuItem;
+        private ToolStripMenuItem selectNoneToolStripMenuItem;
         private FlowLayoutPanel flowLayoutPanel1;
         private FlowLayoutPanel flowLayoutPanel2;
         private Label label1;
@@ -200,7 +203,7 @@
                             column.ColumnName.Contains("\n"))
                         {
                             writer.Write("\"");
-                            writer.Write(column.ColumnName.Replace("\"", "\"\""));
+                            writer.Write(column.ColumnName.Replace("\"", "\"\"").Replace("\r", " ").Replace("\n", " "));
                             writer.Write("\"");
                         }
                         else
@@ -226,7 +229,7 @@
                                 obj2.ToString().Contains("\n"))
                             {
                                 writer.Write("\"");
-                                writer.Write(obj2.ToString().Trim().Replace("\"", "\"\""));
+                                writer.Write(obj2.ToString().Trim().Replace("\"", "\"\"").Replace("\r", " ").Replace("\n", " "));
                                 writer.Write("\"");
                             }
                             else
@@ -253,6 +256,11 @@
             this.menuStripMain = new MenuStrip();
             this.fileToolStripMenuItem = new ToolStripMenuItem();
             this.exitToolStripMenuItem = new ToolStripMenuItem();
+
+            this.editToolStripMenuItem = new ToolStripMenuItem();
+            this.selectAllToolStripMenuItem = new ToolStripMenuItem();
+            this.selectNoneToolStripMenuItem = new ToolStripMenuItem();
+
             this.flowLayoutPanel1 = new FlowLayoutPanel();
             this.label1 = new Label();
             this.cbxDSNList = new ComboBox();
@@ -286,7 +294,7 @@
             this.flowLayoutPanel2.SuspendLayout();
             this.statusStripMain.SuspendLayout();
             base.SuspendLayout();
-            this.menuStripMain.Items.AddRange(new ToolStripItem[] { this.fileToolStripMenuItem, this.dataToolStripMenuItem });
+            this.menuStripMain.Items.AddRange(new ToolStripItem[] { this.fileToolStripMenuItem, this.editToolStripMenuItem, this.dataToolStripMenuItem });
             this.menuStripMain.Location = new Point(0, 0);
             this.menuStripMain.Name = "menuStripMain";
             this.menuStripMain.Size = new Size(0x3c7, 0x18);
@@ -300,9 +308,28 @@
             this.exitToolStripMenuItem.Size = new Size(0x98, 0x16);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new EventHandler(this.exitToolStripMenuItem_Click);
+
+            this.editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { this.selectAllToolStripMenuItem, this.selectNoneToolStripMenuItem });
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new Size(0x25, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+
+            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            this.selectAllToolStripMenuItem.Text = "Select All";
+            this.selectAllToolStripMenuItem.Size = new Size(0x98, 0x16);
+            this.selectAllToolStripMenuItem.ShortcutKeys = Keys.Control & Keys.A;
+            this.selectAllToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+A";
+            this.selectAllToolStripMenuItem.Click += new EventHandler(selectAllToolStripMenuItem_Click);
+            this.selectNoneToolStripMenuItem.Name = "selectNoneToolStripMenuItem";
+            this.selectNoneToolStripMenuItem.Text = "Select None";
+            this.selectNoneToolStripMenuItem.Size = new Size(0x98, 0x16);
+            this.selectNoneToolStripMenuItem.ShortcutKeys = Keys.Control & Keys.Shift & Keys.A;
+            this.selectNoneToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Shift+A";
+            this.selectNoneToolStripMenuItem.Click += new EventHandler(selectNoneToolStripMenuItem_Click);
+
             this.flowLayoutPanel1.Controls.Add(this.label1);
             this.flowLayoutPanel1.Controls.Add(this.cbxDSNList);
-            this.flowLayoutPanel1.Controls.Add(this.buttonRefreshDSN);
+            //this.flowLayoutPanel1.Controls.Add(this.buttonRefreshDSN);
             this.flowLayoutPanel1.Controls.Add(this.label2);
             this.flowLayoutPanel1.Controls.Add(this.tbUsername);
             this.flowLayoutPanel1.Controls.Add(this.label3);
@@ -326,6 +353,7 @@
             this.cbxDSNList.Name = "cbxDSNList";
             this.cbxDSNList.Size = new Size(0xbd, 0x15);
             this.cbxDSNList.TabIndex = 1;
+            this.cbxDSNList.SelectedIndexChanged += new EventHandler(cbxDSNList_SelectedIndexChanged);
             this.buttonRefreshDSN.Location = new Point(0xf6, 2);
             this.buttonRefreshDSN.Margin = new Padding(3, 2, 3, 3);
             this.buttonRefreshDSN.Name = "buttonRefreshDSN";
@@ -447,6 +475,7 @@
             this.tbSQLQuery.Name = "tbSQLQuery";
             this.tbSQLQuery.Size = new Size(640, 0x61);
             this.tbSQLQuery.TabIndex = 1;
+            this.tbSQLQuery.KeyDown += new KeyEventHandler(tbSQLQuery_KeyDown);
             this.statusStripMain.Items.AddRange(new ToolStripItem[] { this.lblStatus });
             this.statusStripMain.Location = new Point(0, 0x228);
             this.statusStripMain.Name = "statusStripMain";
@@ -493,6 +522,31 @@
             base.PerformLayout();
         }
 
+        void tbSQLQuery_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                if (e.Shift)
+                {
+                    this.tbSQLQuery.DeselectAll();
+                }
+                else
+                {
+                    this.tbSQLQuery.SelectAll();
+                }
+            }
+        }
+
+        void selectNoneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.tbSQLQuery.DeselectAll();
+        }
+
+        void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.tbSQLQuery.SelectAll();
+        }
+
         public void populateDSNDropdown()
         {
             this.cbxDSNList.Items.Clear();
@@ -502,6 +556,16 @@
                 string key = (string) this.dsnList.GetKey(i);
                 DataSourceType byIndex = (DataSourceType) this.dsnList.GetByIndex(i);
                 this.cbxDSNList.Items.Add(byIndex.ToString() + ":" + key);
+            }
+            int refreshItem = this.cbxDSNList.Items.Add("(Refresh...)");
+        }
+
+        void cbxDSNList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (this.cbxDSNList.SelectedItem.ToString() == "(Refresh...)")
+            {
+                this.dsnList = this.dsnManager.GetAllDataSourceNames();
+                populateDSNDropdown();
             }
         }
 
