@@ -8,6 +8,7 @@
     using System.Drawing;
     using System.IO;
     using System.Windows.Forms;
+    using System.Diagnostics;
 
     public class formMain : Form
     {
@@ -124,8 +125,10 @@
             {
                 OdbcDataReader reader;
                 Cursor.Current = Cursors.WaitCursor;
+                Stopwatch timer = new Stopwatch();
                 OdbcCommand command = new OdbcCommand(this.tbSQLQuery.Text, this.connection.cnn);
                 this.dataTable = new DataTable();
+                timer.Start();
                 try
                 {
                     reader = command.ExecuteReader();
@@ -136,6 +139,7 @@
                     MessageBox.Show("Error executing command\n\n" + exception.Message);
                     return;
                 }
+                timer.Stop();
                 try
                 {
                     this.dataTable.Load(reader);
@@ -146,7 +150,8 @@
                     return;
                 }
                 this.dgridMain.DataSource = this.dataTable;
-                this.lblStatus.Text = "Query successful, " + this.dataTable.Rows.Count.ToString() + " rows returned.";
+                this.lblStatus.Text = "Query successful, " + this.dataTable.Rows.Count.ToString() + " rows returned." +
+                        " (took " + (((double)timer.ElapsedMilliseconds) / 1000).ToString() + " seconds)";
                 Cursor.Current = Cursors.Default;
             }
         }
@@ -439,6 +444,7 @@
             this.dgridMain.ReadOnly = true;
             this.dgridMain.Size = new Size(0x27e, 0x175);
             this.dgridMain.TabIndex = 1;
+            this.dgridMain.DataError += new DataGridViewDataErrorEventHandler(dgridMain_DataError);
             this.tableLayoutPanel2.ColumnCount = 1;
             this.tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel2, 0, 1);
@@ -520,6 +526,11 @@
             this.statusStripMain.PerformLayout();
             base.ResumeLayout(false);
             base.PerformLayout();
+        }
+
+        void dgridMain_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            //ignore error
         }
 
         void tbSQLQuery_KeyDown(object sender, KeyEventArgs e)
