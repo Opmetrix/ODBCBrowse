@@ -91,12 +91,25 @@
                 {
                     this.lblStatus.Text = "Connect to DSN '" + dsn + "' OK.";
                     this.tvTables.Nodes.Clear();
-                    this.tvTables.Nodes.Add("Database");
+                    this.tvTables.Nodes.Add("Tables");
                     foreach (DataRow row in this.connection.cnn.GetSchema("tables").Rows)
                     {
                         this.tvTables.Nodes[0].Nodes.Add(row.ItemArray[2].ToString());
                     }
                     this.tvTables.ExpandAll();
+
+                    this.tvTables.Nodes.Add("Views");
+                    foreach (DataRow row in this.connection.cnn.GetSchema("views").Rows)
+                    {
+                        this.tvTables.Nodes[1].Nodes.Add(row.ItemArray[2].ToString());
+                    }
+
+                    this.tvTables.Nodes.Add("Procedures");
+                    foreach (DataRow row in this.connection.cnn.GetSchema("procedures").Rows)
+                    {
+                        this.tvTables.Nodes[2].Nodes.Add(row.ItemArray[2].ToString());
+                    }
+
                     Cursor.Current = Cursors.Default;
                 }
             }
@@ -546,6 +559,10 @@
                     this.tbSQLQuery.SelectAll();
                 }
             }
+            else if (e.KeyCode == Keys.F5 || e.KeyCode == Keys.F9)
+            {
+                this.buttonExec.PerformClick();
+            }
         }
 
         void selectNoneToolStripMenuItem_Click(object sender, EventArgs e)
@@ -573,7 +590,7 @@
 
         void cbxDSNList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.cbxDSNList.SelectedItem.ToString() == "(Refresh...)")
+            if (this.cbxDSNList.SelectedItem != null && this.cbxDSNList.SelectedItem.ToString() == "(Refresh...)")
             {
                 this.dsnList = this.dsnManager.GetAllDataSourceNames();
                 populateDSNDropdown();
@@ -583,7 +600,7 @@
         private void tvTables_AfterSelect(object sender, TreeViewEventArgs e)
         {
             this.tbSQLQuery.Text = "";
-            this.tbSQLQuery.AppendText("select * from " + e.Node.Text);
+            this.tbSQLQuery.AppendText("SELECT * FROM " + e.Node.Text);
         }
     }
 }
