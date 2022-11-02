@@ -91,23 +91,49 @@
                 {
                     this.lblStatus.Text = "Connect to DSN '" + dsn + "' OK.";
                     this.tvTables.Nodes.Clear();
-                    this.tvTables.Nodes.Add("Tables");
-                    foreach (DataRow row in this.connection.cnn.GetSchema("tables").Rows)
+
+                    DataTable dt;
+
+                    try
                     {
-                        this.tvTables.Nodes[0].Nodes.Add(row.ItemArray[2].ToString());
+                        dt = this.connection.cnn.GetSchema("tables");
+                        this.tvTables.Nodes.Add("Tables");
+                        foreach (DataRow row in dt.Select(null, "TABLE_NAME"))
+                        {
+                            this.tvTables.Nodes[0].Nodes.Add(row.ItemArray[2].ToString());
+                        }
+                    } catch(Exception ex)
+                    {
+                        //On Error Resume Next
                     }
                     this.tvTables.ExpandAll();
 
-                    this.tvTables.Nodes.Add("Views");
-                    foreach (DataRow row in this.connection.cnn.GetSchema("views").Rows)
+                    try
                     {
-                        this.tvTables.Nodes[1].Nodes.Add(row.ItemArray[2].ToString());
+                        dt = this.connection.cnn.GetSchema("views");
+                        this.tvTables.Nodes.Add("Views");
+                        foreach (DataRow row in dt.Select(null, "TABLE_NAME"))
+                        {
+                            this.tvTables.Nodes[1].Nodes.Add(row.ItemArray[2].ToString());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //On Error Resume Next
                     }
 
-                    this.tvTables.Nodes.Add("Procedures");
-                    foreach (DataRow row in this.connection.cnn.GetSchema("procedures").Rows)
+                    try
                     {
-                        this.tvTables.Nodes[2].Nodes.Add(row.ItemArray[2].ToString());
+                        dt = this.connection.cnn.GetSchema("procedures");
+                        this.tvTables.Nodes.Add("Procedures");
+                        foreach (DataRow row in dt.Select(null, "PROCEDURE_NAME"))
+                        {
+                            this.tvTables.Nodes[2].Nodes.Add(row.ItemArray[2].ToString());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //On Error Resume Next
                     }
 
                     Cursor.Current = Cursors.Default;
@@ -599,8 +625,11 @@
 
         private void tvTables_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            this.tbSQLQuery.Text = "";
-            this.tbSQLQuery.AppendText("SELECT * FROM " + e.Node.Text);
+            if (e.Node.Level == 1)
+            {
+                this.tbSQLQuery.Text = "";
+                this.tbSQLQuery.AppendText("SELECT * FROM " + e.Node.Text);
+            }
         }
     }
 }
