@@ -52,6 +52,23 @@
                     MessageBox.Show("Error: Out of memory", "NetTools: ODBCBrowse", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                     return;
                 }
+                catch (Exception x)
+                {
+                    string moreErrorInfo = string.Empty;
+                    DataRow[] rowErrors = table.GetErrors();
+                    for (int i = 0; i < rowErrors.Length; i++)
+                    {
+                        DataRow row = rowErrors[i];
+                        moreErrorInfo += row.RowError + "\n";
+                    }
+                    // get info about column definitions
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        moreErrorInfo += column.ColumnName + " " + column.DataType.ToString() + " " + column.MaxLength + "\n";
+                    }
+                    MessageBox.Show("Error:" + moreErrorInfo + "\n " + x.Message, "NetTools: ODBCBrowse", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    return;
+                }
                 StreamWriter writer = new StreamWriter(str5);
                 string str7 = "";
                 foreach (DataColumn column in table.Columns)

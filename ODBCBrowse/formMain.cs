@@ -188,6 +188,27 @@
                     MessageBox.Show("Error: Out of memory", "NetTools: ODBCBrowse", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                     return;
                 }
+                catch(Exception x)
+                {
+                    string moreErrorInfo = string.Empty;
+                    DataRow[] rowErrors = this.dataTable.GetErrors();
+                    for (int i = 0; i < rowErrors.Length; i++)
+                    {
+                        DataRow row = rowErrors[i];
+                        moreErrorInfo += row.RowError + "\n";                        
+                    }
+                    // get info about column definitions
+                    foreach (DataColumn column in this.dataTable.Columns)
+                    {
+                        moreErrorInfo += column.ColumnName + " " + column.DataType.ToString() + " " + column.MaxLength + "\n";
+                    }
+                    MessageBox.Show("Error:"+ moreErrorInfo + "\n " + x.Message, "NetTools: ODBCBrowse", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    return;
+                }
+                finally
+                {
+                    reader.Close();
+                }
                 this.dgridMain.DataSource = this.dataTable;
                 this.lblStatus.Text = "Query successful, " + this.dataTable.Rows.Count.ToString() + " rows returned." +
                         " (took " + (((double)timer.ElapsedMilliseconds) / 1000).ToString() + " seconds)";
